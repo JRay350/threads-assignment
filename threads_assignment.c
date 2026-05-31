@@ -90,6 +90,22 @@ int main (int argc, char *argv[]) {
     // Track time at beginning of program
     double start_time = Time_GetSeconds();
 
+    // Verify integrity of passed argument(s)
+    if (argc > 2) {
+        perror("Too many arguments were passed\n");
+        return EXIT_FAILURE;
+    } else if (argc == 2 && atoi(argv[1]) <= 0) { // atoi() resulting in 0 means the argument could not be converted to an int. This condition also means that 0 is not an acceptable argument
+        perror("Invalid argument was passed - given thread count must be greater than 0\n");
+        return EXIT_FAILURE;
+    } else if (argc == 2 && atoi(argv[1]) > 99) { // Don't let the user pass in values greater than 99
+        perror("Given thread count must be less than 100\n");
+        return EXIT_FAILURE;
+    }
+
+    // Use the passed argument (already verified to be an integer) or default to 3 to decide number of threads used in the program
+    int thread_count = (argc == 2) ? atoi(argv[1]) : 3;
+
+
     // First open Data.txt
     FILE *data_fp = fopen("Data.txt", "w+");
     if (!data_fp) {
@@ -111,19 +127,23 @@ int main (int argc, char *argv[]) {
 
     fclose(data_fp);
 
-    // Creation of threads
-    pthread_t p1, p2, p3;
-    Pthread_create(&p1, NULL, thread_routine, "01");
-    Pthread_create(&p2, NULL, thread_routine, "02");
-    Pthread_create(&p3, NULL, thread_routine, "03");
+    // Create the threads
+    pthread_t threads[thread_count];
+    char ids[thread_count][3]; // Array of string IDs that are each 2 characters (1 character for terminating character)
+
+    for (int i = 0; i < thread_count; i++) {
+        int id = i + 1;
+        snprintf(ids[i], sizeof(ids[i]), "%.2d", id);
+        Pthread_create(&threads[i], NULL, thread_routine, ids[i]);
+    }
 
     // Wait for threads to finish before calculating execution time
-    Pthread_join(p1, NULL);
-    Pthread_join(p2, NULL);
-    Pthread_join(p3, NULL);
+    for (int i = 0; i < thread_count; i++) {
+        Pthread_join(threads[i], NULL);
+    }
 
     // Output the difference between end of execution and start
     printf("Total Program Execution Time (ms): %f\n", (Time_GetSeconds() - start_time) * 1000); // Convert difference from seconds to milliseconds within call
-
+    
     return 0;
 }
