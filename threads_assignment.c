@@ -3,7 +3,7 @@ Name: Jacob Ray
 Course Number: CPE3350/CSC3350
 Assignment Title: Threads Assignment
 Professor: Andy Cameron
-Date: 5/30/2026
+Date: 6/02/2026
 **/
 
 #include <stdio.h>
