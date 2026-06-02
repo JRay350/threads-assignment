@@ -19,7 +19,7 @@ void *thread_routine(void *arg) {
 
     FILE *data_fp = fopen("Data.txt", "r");
     if (!data_fp) {
-        perror("Data.txt fopen failed\n");
+        fprintf(stderr, "Data.txt fopen failed\n");
         return NULL;
     }    
 
@@ -33,7 +33,7 @@ void *thread_routine(void *arg) {
         char err_msg[60];
         snprintf(err_msg, sizeof(err_msg), "failed to create %s\n", file_name);
         fclose(data_fp); // Close Data.txt if thread text file creation fails
-        perror(err_msg);
+        fprintf(stderr, "%s\n", err_msg);
         return NULL;
     }
 
@@ -60,7 +60,7 @@ void *thread_routine(void *arg) {
     } else {
         char err_msg[60];
         snprintf(err_msg, sizeof(err_msg), "failed to calculate average for thread %s\n", (char *) arg);
-        perror(err_msg);
+        fprintf(stderr, "%s\n", err_msg);
 
         // Free dynamically allocated line data
         free(line);
@@ -92,14 +92,14 @@ int main (int argc, char *argv[]) {
 
     // Verify integrity of passed argument(s)
     if (argc > 2) {
-        perror("Too many arguments were passed\n");
-        return EXIT_FAILURE;
+        fprintf(stderr, "Too many arguments were passed\n");
+        exit(EXIT_FAILURE);
     } else if (argc == 2 && atoi(argv[1]) <= 0) { // atoi() resulting in 0 means the argument could not be converted to an int. This condition also means that 0 is not an acceptable argument
-        perror("Invalid argument was passed - given thread count must be greater than 0\n");
-        return EXIT_FAILURE;
+        fprintf(stderr, "Invalid argument was passed - given thread count must be greater than 0\n");
+        exit(EXIT_FAILURE);
     } else if (argc == 2 && atoi(argv[1]) > 99) { // Don't let the user pass in values greater than 99
-        perror("Given thread count must be less than 100\n");
-        return EXIT_FAILURE;
+        fprintf(stderr, "Given thread count must be less than 100\n");
+        exit(EXIT_FAILURE);
     }
 
     // Use the passed argument (already verified to be an integer) or default to 3 to decide number of threads used in the program
@@ -109,8 +109,8 @@ int main (int argc, char *argv[]) {
     // First open Data.txt
     FILE *data_fp = fopen("Data.txt", "w+");
     if (!data_fp) {
-        perror("Data.txt fopen failed\n");
-        return EXIT_FAILURE;
+        fprintf(stderr, "Data.txt fopen failed\n");
+        exit(EXIT_FAILURE);
     }
 
     // Establish 1,000,000 integers to write in range [0, 100]
